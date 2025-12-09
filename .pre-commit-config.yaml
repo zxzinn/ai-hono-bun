@@ -1,0 +1,30 @@
+# Pre-commit hooks configuration
+# See https://pre-commit.com for more information
+
+repos:
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-merge-conflict
+      - id: mixed-line-ending
+
+  # TypeScript/JavaScript linting and formatting
+  - repo: local
+    hooks:
+      # Type checking with Bun
+      - id: bun-typecheck
+        name: TypeScript Type Check
+        entry: bun run typecheck
+        language: system
+        types: [ts]
+        pass_filenames: false
+
+      # Optional: You can add more custom hooks here
+      # Example: ESLint, Prettier, etc.

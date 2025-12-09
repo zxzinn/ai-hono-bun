@@ -1,5 +1,5 @@
 import { openai } from '@ai-sdk/openai'
-import { ToolLoopAgent, tool, Output, type TextStreamPart } from 'ai'
+import { ToolLoopAgent, tool, Output } from 'ai'
 import { z } from 'zod'
 
 const weatherSchema = z.object({

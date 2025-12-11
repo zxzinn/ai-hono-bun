@@ -7,8 +7,10 @@
   "dependencies": {
     "@ai-sdk/openai": "^3.0.0-beta.88",
     "@ai-sdk/react": "^3.0.0-beta.140",
+    "@mastra/core": "^0.24.8",
     "ai": "^6.0.0-beta.138",
-    "hono": "^4.10.7"
+    "hono": "^4.10.7",
+    "zod": "^4"
   },
   "devDependencies": {
     "@types/bun": "latest",

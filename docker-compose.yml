@@ -1,0 +1,45 @@
+services:
+  phoenix:
+    image: arizephoenix/phoenix:latest
+    container_name: phoenix
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${PHOENIX_UI_PORT:-6006}:6006"
+      - "${PHOENIX_GRPC_PORT:-4317}:4317"
+      - "${PHOENIX_METRICS_PORT:-9090}:9090"
+    environment:
+      - PHOENIX_SQL_DATABASE_URL=postgresql://postgres:postgres@db:5432/phoenix
+      - PHOENIX_PORT=6006
+    restart: unless-stopped
+    networks:
+      - phoenix-network
+
+  db:
+    image: postgres:16-alpine
+    container_name: phoenix-db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=phoenix
+    volumes:
+      - phoenix_db_data:/var/lib/postgresql/data
+    ports:
+      - "${PHOENIX_DB_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - phoenix-network
+
+volumes:
+  phoenix_db_data:
+    driver: local
+
+networks:
+  phoenix-network:
+    driver: bridge

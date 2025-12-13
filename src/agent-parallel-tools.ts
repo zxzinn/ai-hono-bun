@@ -97,6 +97,38 @@ interface ToolCallInfo {
 
 const toolCalls = new Map<string, ToolCallInfo>()
 
+async function runPrompt(prompt: string) {
+  toolCalls.clear()
+  console.log('\n' + '─'.repeat(60))
+
+  const startTime = Date.now()
+  const result = await agent.stream({ prompt })
+
+  for await (const event of result.fullStream) {
+    handleEvent(event)
+  }
+
+  const totalTime = Date.now() - startTime
+
+  if (toolCalls.size > 0) {
+    console.log('\n' + '─'.repeat(60))
+    console.log('📊 Performance Summary:')
+    console.log('─'.repeat(60))
+
+    const callsArray = Array.from(toolCalls.values())
+    const totalSequentialTime = callsArray.reduce((sum, call) => {
+      return sum + (call.endTime ? call.endTime - call.startTime : 0)
+    }, 0)
+
+    console.log(`✨ Tools called in parallel: ${toolCalls.size}`)
+    console.log(`⚡ Actual execution time: ${totalTime}ms`)
+    console.log(`🐌 Sequential would take: ${totalSequentialTime}ms`)
+    console.log(`🚀 Time saved: ${totalSequentialTime - totalTime}ms (${Math.round((1 - totalTime / totalSequentialTime) * 100)}% faster)`)
+  }
+
+  console.log('\n')
+}
+
 async function chat() {
   console.log('🚀 Parallel Tool Calling Agent')
   console.log('=' .repeat(60))
@@ -108,36 +140,7 @@ async function chat() {
   for await (const line of console) {
     const prompt = line.trim()
     if (!prompt) continue
-
-    toolCalls.clear()
-    console.log('\n' + '─'.repeat(60))
-
-    const startTime = Date.now()
-    const result = await agent.stream({ prompt })
-
-    for await (const event of result.fullStream) {
-      handleEvent(event)
-    }
-
-    const totalTime = Date.now() - startTime
-
-    if (toolCalls.size > 0) {
-      console.log('\n' + '─'.repeat(60))
-      console.log('📊 Performance Summary:')
-      console.log('─'.repeat(60))
-
-      const callsArray = Array.from(toolCalls.values())
-      const totalSequentialTime = callsArray.reduce((sum, call) => {
-        return sum + (call.endTime ? call.endTime - call.startTime : 0)
-      }, 0)
-
-      console.log(`✨ Tools called in parallel: ${toolCalls.size}`)
-      console.log(`⚡ Actual execution time: ${totalTime}ms`)
-      console.log(`🐌 Sequential would take: ${totalSequentialTime}ms`)
-      console.log(`🚀 Time saved: ${totalSequentialTime - totalTime}ms (${Math.round((1 - totalTime / totalSequentialTime) * 100)}% faster)`)
-    }
-
-    console.log('\n')
+    await runPrompt(prompt)
   }
 }
 
@@ -182,4 +185,17 @@ function handleEvent(event: TextStreamPart<typeof agent.tools>) {
   }
 }
 
-chat()
+async function main() {
+  const args = process.argv.slice(2)
+  if (args.length > 0) {
+    const prompt = args.join(' ')
+    console.log('🚀 Parallel Tool Calling Agent')
+    console.log('=' .repeat(60))
+    console.log(`Prompt: "${prompt}"\n`)
+    await runPrompt(prompt)
+  } else {
+    await chat()
+  }
+}
+
+main()

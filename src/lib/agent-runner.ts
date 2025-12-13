@@ -9,3 +9,18 @@ export async function runAgentWithArgs(
     await chat()
   }
 }
+
+export async function createChatLoop(
+  runPrompt: (prompt: string) => Promise<void>,
+  welcomeMessage?: string
+) {
+  if (welcomeMessage) {
+    console.log(welcomeMessage)
+  }
+
+  for await (const line of console) {
+    const prompt = line.trim()
+    if (!prompt) continue
+    await runPrompt(prompt)
+  }
+}

@@ -1,7 +1,7 @@
 import { openai } from '@ai-sdk/openai'
 import { ToolLoopAgent, tool, Output } from 'ai'
 import { z } from 'zod'
-import { runAgentWithArgs } from './lib/agent-runner'
+import { runAgentWithArgs, createChatLoop } from './lib/agent-runner'
 
 const weatherSchema = z.object({
   cities: z.array(
@@ -56,13 +56,7 @@ async function runPrompt(prompt: string) {
 }
 
 async function chat() {
-  console.log('Structured Output Agent ready. Type your message (Ctrl+C to exit):\n')
-
-  for await (const line of console) {
-    const prompt = line.trim()
-    if (!prompt) continue
-    await runPrompt(prompt)
-  }
+  await createChatLoop(runPrompt, 'Structured Output Agent ready. Type your message (Ctrl+C to exit):\n')
 }
 
 runAgentWithArgs(runPrompt, chat)

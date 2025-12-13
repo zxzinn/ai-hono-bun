@@ -1,7 +1,7 @@
 import { openai } from '@ai-sdk/openai'
 import { ToolLoopAgent, tool, type TextStreamPart } from 'ai'
 import { z } from 'zod'
-import { runAgentWithArgs } from './lib/agent-runner'
+import { runAgentWithArgs, createChatLoop } from './lib/agent-runner'
 
 const agent = new ToolLoopAgent({
   model: openai('gpt-4o'),
@@ -131,18 +131,16 @@ async function runPrompt(prompt: string) {
 }
 
 async function chat() {
-  console.log('🚀 Parallel Tool Calling Agent')
-  console.log('=' .repeat(60))
-  console.log('This agent can call multiple tools simultaneously!')
-  console.log('Try asking about multiple cities to see parallel execution.\n')
-  console.log('Example: "Tell me about Tokyo, New York, and London"\n')
-  console.log('Type your message (Ctrl+C to exit):\n')
+  const welcome = [
+    '🚀 Parallel Tool Calling Agent',
+    '='.repeat(60),
+    'This agent can call multiple tools simultaneously!',
+    'Try asking about multiple cities to see parallel execution.\n',
+    'Example: "Tell me about Tokyo, New York, and London"\n',
+    'Type your message (Ctrl+C to exit):\n'
+  ].join('\n')
 
-  for await (const line of console) {
-    const prompt = line.trim()
-    if (!prompt) continue
-    await runPrompt(prompt)
-  }
+  await createChatLoop(runPrompt, welcome)
 }
 
 function handleEvent(event: TextStreamPart<typeof agent.tools>) {

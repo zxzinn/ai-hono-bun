@@ -2,6 +2,9 @@ import { openai } from '@ai-sdk/openai';
 import { ToolLoopAgent, tool } from 'ai';
 import { z } from 'zod';
 import type { LanguageModel } from 'ai';
+import { initPhoenixTracing } from './lib/phoenix-tracing';
+
+initPhoenixTracing('agent-dynamic-config');
 
 const weatherTool = tool({
   description: 'Get the weather in a location',
@@ -94,6 +97,11 @@ const dynamicAgent = new ToolLoopAgent({
     console.log('Model:', body.model);
     console.log('Temperature:', body.temperature);
     console.log('Tokens used:', usage?.totalTokens);
+  },
+
+  experimental_telemetry: {
+    isEnabled: true,
+    functionId: 'agent-dynamic-config',
   },
 });
 

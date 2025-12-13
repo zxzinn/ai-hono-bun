@@ -2,6 +2,9 @@ import { openai } from '@ai-sdk/openai'
 import { ToolLoopAgent, tool, Output } from 'ai'
 import { z } from 'zod'
 import { runAgentWithArgs, createChatLoop } from './lib/agent-runner'
+import { initPhoenixTracing } from './lib/phoenix-tracing'
+
+initPhoenixTracing('agent-structured-output')
 
 const weatherSchema = z.object({
   cities: z.array(
@@ -36,6 +39,10 @@ const agent = new ToolLoopAgent({
         }
       },
     }),
+  },
+  experimental_telemetry: {
+    isEnabled: true,
+    functionId: 'agent-structured-output',
   },
 })
 

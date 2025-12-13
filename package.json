@@ -7,9 +7,19 @@
   "dependencies": {
     "@ai-sdk/openai": "^3.0.0-beta.88",
     "@ai-sdk/react": "^3.0.0-beta.140",
+    "@arizeai/openinference-instrumentation-openai": "^4.0.5",
+    "@arizeai/phoenix-otel": "^0.3.4",
     "@mastra/core": "^0.24.8",
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/exporter-trace-otlp-grpc": "^0.208.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.208.0",
+    "@opentelemetry/exporter-trace-otlp-proto": "^0.208.0",
+    "@opentelemetry/resources": "^2.2.0",
+    "@opentelemetry/sdk-trace-node": "^2.2.0",
+    "@opentelemetry/semantic-conventions": "^1.38.0",
     "ai": "^6.0.0-beta.138",
     "hono": "^4.10.7",
+    "openai": "^6.10.0",
     "zod": "^4"
   },
   "devDependencies": {

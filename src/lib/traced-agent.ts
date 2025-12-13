@@ -1,15 +1,19 @@
 import { ToolLoopAgent } from 'ai'
 import type { ToolLoopAgentSettings } from 'ai'
+import { openai } from '@ai-sdk/openai'
 import { initPhoenixTracing } from './phoenix-tracing'
 import { basename } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 type TracedToolLoopAgentSettings = Omit<
   ToolLoopAgentSettings<any, any, any>,
-  'experimental_telemetry'
+  'experimental_telemetry' | 'model'
 > & {
   agentId?: string
+  model?: ToolLoopAgentSettings<any, any, any>['model']
 }
+
+const DEFAULT_MODEL = openai('gpt-5-nano')
 
 export function createTracedToolLoopAgent(
   callerUrl: string,
@@ -23,6 +27,7 @@ export function createTracedToolLoopAgent(
 
   return new ToolLoopAgent({
     ...agentConfig,
+    model: agentConfig.model ?? DEFAULT_MODEL,
     experimental_telemetry: {
       isEnabled: true,
       functionId: agentId,

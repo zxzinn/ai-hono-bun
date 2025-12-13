@@ -1,4 +1,3 @@
-import { openai } from '@ai-sdk/openai'
 import { tool, Output } from 'ai'
 import { z } from 'zod'
 import { runAgentWithArgs, createChatLoop } from './lib/agent-runner'
@@ -17,7 +16,6 @@ const weatherSchema = z.object({
 })
 
 const agent = createTracedToolLoopAgent(import.meta.url, {
-  model: openai('gpt-4o'),
   instructions: 'You are a weather assistant. Always provide structured weather data.',
   output: Output.object({
     schema: weatherSchema,

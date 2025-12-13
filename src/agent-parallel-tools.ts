@@ -1,11 +1,9 @@
-import { openai } from '@ai-sdk/openai'
 import { tool, type TextStreamPart } from 'ai'
 import { z } from 'zod'
 import { runAgentWithArgs, createChatLoop } from './lib/agent-runner'
 import { createTracedToolLoopAgent } from './lib/traced-agent'
 
 const agent = createTracedToolLoopAgent(import.meta.url, {
-  model: openai('gpt-4o'),
   instructions: 'You are a helpful assistant that can fetch information from multiple sources simultaneously. When asked about multiple things, use all relevant tools in parallel for efficiency.',
   tools: {
     getWeather: tool({

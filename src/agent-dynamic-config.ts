@@ -39,8 +39,6 @@ const translateTool = tool({
 });
 
 const dynamicAgent = createTracedToolLoopAgent(import.meta.url, {
-  model: openai('gpt-4o-mini'),
-
   callOptionsSchema: z.object({
     model: z.custom<LanguageModel>().optional(),
     temperature: z.number().min(0).max(2).optional(),
@@ -79,14 +77,19 @@ const dynamicAgent = createTracedToolLoopAgent(import.meta.url, {
       tools.translate = translateTool;
     }
 
-    return {
+    const result: any = {
       ...rest,
-      model: options?.model ?? openai('gpt-4o-mini'),
       instructions,
       tools,
       temperature: options?.temperature ?? 0.7,
       prompt,
     };
+
+    if (options?.model) {
+      result.model = options.model;
+    }
+
+    return result;
   },
 
   onStepFinish: ({ request, usage }) => {

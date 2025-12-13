@@ -1,6 +1,7 @@
 import { openai } from '@ai-sdk/openai'
 import { ToolLoopAgent, tool, type TextStreamPart } from 'ai'
 import { z } from 'zod'
+import { runAgentWithArgs } from './lib/agent-runner'
 
 const agent = new ToolLoopAgent({
   model: openai('gpt-4o'),
@@ -22,20 +23,23 @@ const agent = new ToolLoopAgent({
   },
 })
 
+async function runPrompt(prompt: string) {
+  const result = await agent.stream({ prompt })
+
+  for await (const event of result.fullStream) {
+    handleEvent(event)
+  }
+
+  console.log('\n')
+}
+
 async function chat() {
   console.log('Agent ready. Type your message (Ctrl+C to exit):\n')
 
   for await (const line of console) {
     const prompt = line.trim()
     if (!prompt) continue
-
-    const result = await agent.stream({ prompt })
-
-    for await (const event of result.fullStream) {
-      handleEvent(event)
-    }
-
-    console.log('\n')
+    await runPrompt(prompt)
   }
 }
 
@@ -64,4 +68,4 @@ function handleEvent(event: TextStreamPart<typeof agent.tools>) {
   }
 }
 
-chat()
+runAgentWithArgs(runPrompt, chat)

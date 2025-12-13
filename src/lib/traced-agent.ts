@@ -1,9 +1,9 @@
-import { ToolLoopAgent } from 'ai'
-import type { ToolLoopAgentSettings } from 'ai'
-import { openai } from '@ai-sdk/openai'
-import { initPhoenixTracing } from './phoenix-tracing'
-import { basename } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import type {ToolLoopAgentSettings} from 'ai'
+import {ToolLoopAgent} from 'ai'
+import {openai} from '@ai-sdk/openai'
+import {initPhoenixTracing} from './phoenix-tracing'
+import {basename} from 'node:path'
+import {fileURLToPath} from 'node:url'
 
 type TracedToolLoopAgentSettings = Omit<
   ToolLoopAgentSettings<any, any, any>,
@@ -37,6 +37,5 @@ export function createTracedToolLoopAgent(
 
 function deriveAgentIdFromUrl(url: string): string {
   const filePath = fileURLToPath(url)
-  const fileName = basename(filePath, '.ts')
-  return fileName
+  return basename(filePath, '.ts')
 }

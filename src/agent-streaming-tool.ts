@@ -1,12 +1,10 @@
 import { openai } from '@ai-sdk/openai'
-import { ToolLoopAgent, tool, type TextStreamPart } from 'ai'
+import { tool, type TextStreamPart } from 'ai'
 import { z } from 'zod'
 import { runAgentWithArgs, createChatLoop } from './lib/agent-runner'
-import { initPhoenixTracing } from './lib/phoenix-tracing'
+import { createTracedToolLoopAgent } from './lib/traced-agent'
 
-initPhoenixTracing('agent-streaming-tool')
-
-const agent = new ToolLoopAgent({
+const agent = createTracedToolLoopAgent(import.meta.url, {
   model: openai('gpt-4o'),
   instructions: 'You are a helpful assistant that can fetch weather data.',
   tools: {
@@ -36,10 +34,6 @@ const agent = new ToolLoopAgent({
         }
       },
     }),
-  },
-  experimental_telemetry: {
-    isEnabled: true,
-    functionId: 'agent-streaming-tool',
   },
 })
 

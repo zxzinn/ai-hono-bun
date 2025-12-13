@@ -1,10 +1,8 @@
 import { openai } from '@ai-sdk/openai'
-import { ToolLoopAgent, tool, Output } from 'ai'
+import { tool, Output } from 'ai'
 import { z } from 'zod'
 import { runAgentWithArgs, createChatLoop } from './lib/agent-runner'
-import { initPhoenixTracing } from './lib/phoenix-tracing'
-
-initPhoenixTracing('agent-structured-output')
+import { createTracedToolLoopAgent } from './lib/traced-agent'
 
 const weatherSchema = z.object({
   cities: z.array(
@@ -18,7 +16,7 @@ const weatherSchema = z.object({
   summary: z.string(),
 })
 
-const agent = new ToolLoopAgent({
+const agent = createTracedToolLoopAgent(import.meta.url, {
   model: openai('gpt-4o'),
   instructions: 'You are a weather assistant. Always provide structured weather data.',
   output: Output.object({
@@ -39,10 +37,6 @@ const agent = new ToolLoopAgent({
         }
       },
     }),
-  },
-  experimental_telemetry: {
-    isEnabled: true,
-    functionId: 'agent-structured-output',
   },
 })
 

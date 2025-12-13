@@ -1,10 +1,8 @@
 import { openai } from '@ai-sdk/openai';
-import { ToolLoopAgent, tool } from 'ai';
+import { tool } from 'ai';
 import { z } from 'zod';
 import type { LanguageModel } from 'ai';
-import { initPhoenixTracing } from './lib/phoenix-tracing';
-
-initPhoenixTracing('agent-dynamic-config');
+import { createTracedToolLoopAgent } from './lib/traced-agent';
 
 const weatherTool = tool({
   description: 'Get the weather in a location',
@@ -40,7 +38,7 @@ const translateTool = tool({
   },
 });
 
-const dynamicAgent = new ToolLoopAgent({
+const dynamicAgent = createTracedToolLoopAgent(import.meta.url, {
   model: openai('gpt-4o-mini'),
 
   callOptionsSchema: z.object({
@@ -69,8 +67,8 @@ const dynamicAgent = new ToolLoopAgent({
     const verbosity = options?.verbosity ?? 'normal';
 
     const instructions = [
-      languageInstructions[language],
-      verbosityInstructions[verbosity],
+      languageInstructions[language as keyof typeof languageInstructions],
+      verbosityInstructions[verbosity as keyof typeof verbosityInstructions],
     ].join(' ');
 
     const tools: Record<string, any> = {
@@ -98,11 +96,6 @@ const dynamicAgent = new ToolLoopAgent({
     console.log('Temperature:', body.temperature);
     console.log('Tokens used:', usage?.totalTokens);
   },
-
-  experimental_telemetry: {
-    isEnabled: true,
-    functionId: 'agent-dynamic-config',
-  },
 });
 
 async function main() {
@@ -115,11 +108,11 @@ async function main() {
   const result1 = await dynamicAgent.stream({
     prompt: "What's the weather like in Tokyo?",
     options: {
-      language: 'en',
-      verbosity: 'brief',
+      language: 'en' as const,
+      verbosity: 'brief' as const,
       temperature: 0.5,
     },
-  });
+  } as any);
 
   for await (const chunk of result1.textStream) {
     process.stdout.write(chunk);
@@ -131,12 +124,12 @@ async function main() {
   const result2 = await dynamicAgent.stream({
     prompt: "What's the weather in Paris and London?",
     options: {
-      language: 'zh',
-      verbosity: 'detailed',
+      language: 'zh' as const,
+      verbosity: 'detailed' as const,
       enableTranslation: true,
       temperature: 0.8,
     },
-  });
+  } as any);
 
   for await (const chunk of result2.textStream) {
     process.stdout.write(chunk);
@@ -149,11 +142,11 @@ async function main() {
     prompt: 'Compare the weather patterns in San Francisco and New York',
     options: {
       model: openai('gpt-4o'),
-      language: 'en',
-      verbosity: 'detailed',
+      language: 'en' as const,
+      verbosity: 'detailed' as const,
       temperature: 0.3,
     },
-  });
+  } as any);
 
   for await (const chunk of result3.textStream) {
     process.stdout.write(chunk);

@@ -4,7 +4,7 @@ import { tool } from 'llamaindex'
 import { z } from 'zod'
 import { runAgentWithArgs } from './lib/agent-runner'
 import { initOpenLumixTracing } from './lib/openlumix-tracing'
-import { trace, type Span } from '@opentelemetry/api'
+import { trace, type Span, SpanStatusCode } from '@opentelemetry/api'
 
 const tracer = trace.getTracer('llamaindex-agent')
 
@@ -159,6 +159,7 @@ async function runPrompt(prompt: string) {
 
             toolCall.span.setAttribute('tool.output', JSON.stringify(event.data.toolOutput))
             toolCall.span.setAttribute('tool.duration_ms', duration)
+            toolCall.span.setStatus({ code: SpanStatusCode.OK })
             toolCall.span.end()
 
             console.log(`✅ [${toolCall.name}] Completed in ${duration}ms`)
@@ -191,9 +192,10 @@ async function runPrompt(prompt: string) {
 
       agentSpan.setAttribute('agent.duration_ms', totalTime)
       agentSpan.setAttribute('agent.tool_calls_count', toolCalls.size)
+      agentSpan.setStatus({ code: SpanStatusCode.OK })
     } catch (error) {
       agentSpan.recordException(error as Error)
-      agentSpan.setStatus({ code: 2, message: (error as Error).message })
+      agentSpan.setStatus({ code: SpanStatusCode.ERROR, message: (error as Error).message })
       throw error
     } finally {
       agentSpan.end()

@@ -1,8 +1,8 @@
-import { openai } from '@ai-sdk/openai'
-import { tool } from 'ai'
-import { z } from 'zod'
-import { createTracedToolLoopAgent } from './lib/traced-agent'
-import { shutdownPhoenixTracing } from './lib/phoenix-tracing'
+import {openai} from '@ai-sdk/openai'
+import {tool} from 'ai'
+import {z} from 'zod'
+import {createTracedToolLoopAgent} from './lib/traced-agent'
+import {shutdownPhoenixTracing} from './lib/phoenix-tracing'
 
 interface BenchmarkResult {
   modelId: string
@@ -185,8 +185,7 @@ async function fetchPhoenixMetrics() {
       body: JSON.stringify({ query }),
     })
 
-    const data = await response.json()
-    return data
+    return await response.json()
   } catch (error) {
     console.error('Failed to fetch Phoenix metrics:', error)
     return null

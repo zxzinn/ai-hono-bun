@@ -1,8 +1,9 @@
-import { NodeTracerProvider, BatchSpanProcessor } from '@opentelemetry/sdk-trace-node'
-import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http'
+import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node'
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-proto'
+import { SimpleSpanProcessor, SpanProcessor } from '@opentelemetry/sdk-trace-base'
 
 let tracerProvider: NodeTracerProvider | null = null
-let spanProcessor: BatchSpanProcessor | null = null
+let spanProcessor: SpanProcessor | null = null
 
 export function initOpenLumixTracing(projectName: string = 'ai-agent-playground') {
   if (tracerProvider) {
@@ -21,7 +22,7 @@ export function initOpenLumixTracing(projectName: string = 'ai-agent-playground'
       },
     })
 
-    spanProcessor = new BatchSpanProcessor(exporter)
+    spanProcessor = new SimpleSpanProcessor(exporter as any)
 
     tracerProvider = new NodeTracerProvider({
       spanProcessors: [spanProcessor],
@@ -33,7 +34,7 @@ export function initOpenLumixTracing(projectName: string = 'ai-agent-playground'
     console.log(`[OpenLumix] Collector: ${openlumixUrl}`)
     console.log(`[OpenLumix] Project ID: ${openlumixProjectId}`)
     console.log(`[OpenLumix] View traces at: http://localhost:3000`)
-    console.log(`[OpenLumix] Using HTTP+JSON with BatchSpanProcessor`)
+    console.log(`[OpenLumix] Using protobuf over HTTP with SimpleSpanProcessor`)
 
     return tracerProvider
   } catch (error) {
@@ -47,7 +48,7 @@ export function initOpenLumixTracing(projectName: string = 'ai-agent-playground'
 
 export async function shutdownOpenLumixTracing() {
   if (tracerProvider && spanProcessor) {
-    await spanProcessor.forceFlush()
+    await spanProcessor.forceFlush?.()
     await tracerProvider.shutdown()
     console.log('[OpenLumix] Tracing shutdown complete')
   }

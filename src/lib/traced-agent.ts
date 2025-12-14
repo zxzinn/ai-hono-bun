@@ -1,7 +1,7 @@
 import type {ToolLoopAgentSettings} from 'ai'
 import {ToolLoopAgent} from 'ai'
 import {openai} from '@ai-sdk/openai'
-import {initPhoenixTracing} from './phoenix-tracing'
+import {initOpenLumixTracing} from './openlumix-tracing'
 import {basename} from 'node:path'
 import {fileURLToPath} from 'node:url'
 
@@ -21,7 +21,7 @@ export function createTracedToolLoopAgent(
 ) {
   const agentId = config.agentId ?? deriveAgentIdFromUrl(callerUrl)
 
-  initPhoenixTracing(agentId)
+  initOpenLumixTracing(agentId)
 
   const { agentId: _, ...agentConfig } = config
 
